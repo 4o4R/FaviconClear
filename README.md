@@ -136,11 +136,8 @@ Browsers automatically recreate these files with clean data.
 
 # Download the Script
 
-You can download the full script here:
+From the releases. 
 
-**[Download clear_favicon_cache.py](sandbox:/mnt/data/clear_favicon_cache.py)**
-
-(If you need it zipped, I can generate that too.)
 
 ---
 
