@@ -18,7 +18,7 @@ This tool provides a **single, cross-platform launcher** (macOS + Windows) that 
 2. If not:
    - Visit: https://www.python.org/downloads/windows/
    - Download **Python 3**
-   - IMPORTANT: check the box **“Add Python to PATH”**
+   - IMPORTANT: check **“Add Python to PATH”**
    - Finish install.
 
 ### 2. Put the Files in an Easy Folder
@@ -37,7 +37,9 @@ Double‑click:
 run_cleaner.bat
 ```
 
-It calls Python automatically (`python`, then `py -3`, then `py`), runs the cleaner, shows results, and waits for ENTER so you can read the output.
+It calls Python 3 automatically (`py -3`, then `python3`, then `python` if it’s Python 3), runs the cleaner, shows results, and waits for ENTER so you can read the output.
+
+If you see a `SyntaxError` near `def log(msg: str)`, you’re on an old Python. Install Python 3 and try again.
 
 ### Optional: Desktop Shortcut
 Right‑click `run_cleaner.bat` → **Send to Desktop**.
