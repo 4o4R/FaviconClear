@@ -12,11 +12,14 @@ if not exist "%SCRIPT%" (
 echo Running favicon cache cleaner...
 
 rem Try common Python launchers/interpreters in order; script enforces min version (2.7+)
-py -3 "%SCRIPT%" && goto :done
-py -2 "%SCRIPT%" && goto :done
-py "%SCRIPT%" && goto :done
-python3 "%SCRIPT%" && goto :done
-python "%SCRIPT%" && goto :done
+python "%SCRIPT%" 2>nul && goto :done
+python3 "%SCRIPT%" 2>nul && goto :done
+py -3 "%SCRIPT%" 2>nul && goto :done
+py -2 "%SCRIPT%" 2>nul && goto :done
+py "%SCRIPT%" 2>nul && goto :done
+
+rem Try common install locations if PATH is missing Python
+if exist "C:\Python27\python.exe" "C:\Python27\python.exe" "%SCRIPT%" && goto :done
 
 echo.
 echo Could not run Python. Please install Python from https://www.python.org/downloads/windows/

@@ -79,7 +79,7 @@ def clear_chrome_favicons_mac():
     """
     base_dir = ensure_expanded("~/Library/Application Support/Google/Chrome")
     if not os.path.exists(base_dir):
-        log("  Chrome base directory not found (macOS) – skipping.")
+        log("  Chrome base directory not found (macOS) - skipping.")
         return
 
     log("  scanning Chrome profiles under: {0}".format(base_dir))
@@ -92,7 +92,7 @@ def clear_chrome_favicons_windows():
     """
     base_dir = ensure_expanded(r"%LOCALAPPDATA%\Google\Chrome\User Data")
     if not os.path.exists(base_dir):
-        log("  Chrome base directory not found (Windows) – skipping.")
+        log("  Chrome base directory not found (Windows) - skipping.")
         return
 
     log("  scanning Chrome profiles under: {0}".format(base_dir))
@@ -108,7 +108,7 @@ def clear_chrome_favicons():
     elif system == "Windows":
         clear_chrome_favicons_windows()
     else:
-        log("  non-macOS/non-Windows system – skipping Chrome.")
+        log("  non-macOS/non-Windows system - skipping Chrome.")
     log("")
 
 
@@ -122,7 +122,7 @@ def clear_firefox_favicons_mac():
     """
     profiles_dir = ensure_expanded("~/Library/Application Support/Firefox/Profiles")
     if not os.path.exists(profiles_dir):
-        log("  Firefox profiles directory not found (macOS) – skipping.")
+        log("  Firefox profiles directory not found (macOS) - skipping.")
         return
 
     log("  scanning Firefox profiles under: {0}".format(profiles_dir))
@@ -142,7 +142,7 @@ def clear_firefox_favicons_windows():
     """
     profiles_dir = ensure_expanded(r"%APPDATA%\Mozilla\Firefox\Profiles")
     if not os.path.exists(profiles_dir):
-        log("  Firefox profiles directory not found (Windows) – skipping.")
+        log("  Firefox profiles directory not found (Windows) - skipping.")
         return
 
     log("  scanning Firefox profiles under: {0}".format(profiles_dir))
@@ -165,7 +165,7 @@ def clear_firefox_favicons():
     elif system == "Windows":
         clear_firefox_favicons_windows()
     else:
-        log("  non-macOS/non-Windows system – skipping Firefox.")
+        log("  non-macOS/non-Windows system - skipping Firefox.")
     log("")
 
 
@@ -180,7 +180,7 @@ def clear_safari_favicons_mac():
     cache_dir = ensure_expanded("~/Library/Safari/Favicon Cache")
     log("Safari:")
     if not os.path.exists(cache_dir):
-        log("  Safari favicon cache directory not found – skipping.")
+        log("  Safari favicon cache directory not found - skipping.")
     else:
         remove_path(cache_dir)
     log("")
