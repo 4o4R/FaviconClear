@@ -21,42 +21,25 @@ This tool provides a **single, cross-platform launcher** (macOS + Windows) that 
    - IMPORTANT: check the box **“Add Python to PATH”**
    - Finish install.
 
-### 2. Put the Script in an Easy Folder
+### 2. Put the Files in an Easy Folder
 Create a folder:
 
 ```
 C:\FaviconCleaner\
 ```
 
-Move `clear_favicon_cache.py` into that folder.
+Move `clear_favicon_cache.py` **and** `run_cleaner.bat` into that folder.
 
-### 3. Create a One‑Click Launcher
-1. Open **Notepad**
-2. Paste:
-
-```bat
-@echo off
-python "%~dp0clear_favicon_cache.py"
-pause
-```
-
-3. Save as:
-
-```
-C:\FaviconCleaner\run_cleaner.bat
-```
-(Make sure “Save as type” is **All Files**, not .txt.)
-
-### 4. Run It
+### 3. Run It (Double‑Click)
 Double‑click:
 
 ```
 run_cleaner.bat
 ```
 
-A window will open, run the cleaner, display results, and wait for ENTER.
+It calls Python automatically (`python`, then `py -3`, then `py`), runs the cleaner, shows results, and waits for ENTER so you can read the output.
 
-### Optional: Create Desktop Shortcut
+### Optional: Desktop Shortcut
 Right‑click `run_cleaner.bat` → **Send to Desktop**.
 
 ---
@@ -81,35 +64,27 @@ brew install python
 Or download from python.org.
 
 ### 2. Create Folder for the Script
+
 ```bash
 mkdir -p ~/FaviconCleaner
 ```
 
-Move `clear_favicon_cache.py` into it.
+Move `clear_favicon_cache.py` **and** `run_cleaner.command` into it.
 
-### 3. Run the Script
+### 3. Run It (Double‑Click)
+Double‑click `run_cleaner.command`. The first time, macOS may ask to confirm running a downloaded file.
+
+If double‑clicking doesn’t start it, make it executable once:
+
+```bash
+chmod +x ~/FaviconCleaner/run_cleaner.command
+```
+
+### Optional: Run from Terminal
 ```bash
 cd ~/FaviconCleaner
 python3 clear_favicon_cache.py
 ```
-
-### Optional: Create a Clickable macOS App
-1. Open **Automator**
-2. Choose **Application**
-3. Add **Run Shell Script**
-4. Paste:
-
-```bash
-/usr/bin/env python3 "$HOME/FaviconCleaner/clear_favicon_cache.py"
-```
-
-5. Save as:
-
-```
-Favicon Cleaner.app
-```
-
-Place it in Applications or Desktop.
 
 ---
 
