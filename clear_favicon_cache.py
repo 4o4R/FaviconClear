@@ -1,136 +1,105 @@
 # File: clear_favicon_cache.py
-# Folder: Anywhere (e.g., Desktop, C:\Scripts, or ~/scripts)
+# Works with: Python 2.7+ and Python 3.x
 #
 # PURPOSE:
-#   This script is a single cross-platform launcher that clears
-#   favicon-related caches for:
+#   Cross-platform launcher that clears favicon-related caches for:
 #       - Google Chrome (all profiles it can find)
 #       - Mozilla Firefox (all profiles it can find)
 #       - Apple Safari (macOS only)
-#
-#   It is safe in the sense that it only deletes known cache/database
-#   files used for favicons. Browsers will recreate these files.
+#   Browsers will recreate the files safely.
 #
 # HOW TO USE:
-#   1) Make sure Python 3 is installed.
-#   2) Run:
-#        macOS:   python3 clear_favicon_cache.py
-#        Windows: python   clear_favicon_cache.py
-#
-#   If you double-click the file on Windows and it's associated with Python,
-#   it should also run and show a console window.
+#   macOS:   python clear_favicon_cache.py   (or python3)
+#   Windows: python clear_favicon_cache.py   (or double-click run_cleaner.bat)
+
+from __future__ import print_function
 
 import os
-import glob
 import shutil
 import platform
-from pathlib import Path
+import sys
+
+MIN_VERSION = (2, 7)
 
 
 # ------------------------------------------------------------
 # Small helper functions
 # ------------------------------------------------------------
 
-def log(msg: str) -> None:
+def log(msg):
     """Print a simple status line."""
     print(msg)
 
 
-def remove_path(path: Path) -> None:
+def remove_path(path):
     """
-    Delete either a file or a directory if it exists.
+    Delete a file or directory if it exists.
 
-    We use this instead of calling os.remove / shutil.rmtree directly
-    so we can:
-      - check existence
-      - avoid exceptions killing the script
-      - reuse the same code for files and folders
+    Using os.path and shutil for compatibility with Python 2.7.
     """
     try:
-        if not path.exists():
+        if not os.path.exists(path):
             return
 
-        if path.is_dir():
-            # Recursively delete a directory tree.
+        if os.path.isdir(path):
             shutil.rmtree(path, ignore_errors=True)
-            log(f"  removed directory: {path}")
+            log("  removed directory: {0}".format(path))
         else:
-            # Delete a single file.
-            path.unlink(missing_ok=True)  # Python 3.8+: will ignore if missing
-            log(f"  removed file     : {path}")
+            try:
+                os.remove(path)
+                log("  removed file     : {0}".format(path))
+            except OSError as e:
+                log("  [WARN] could not remove {0} ({1})".format(path, e))
     except Exception as e:
-        # We don't stop the script on errors, just report.
-        log(f"  [WARN] could not remove {path} ({e})")
+        log("  [WARN] could not remove {0} ({1})".format(path, e))
 
 
-def ensure_expanded(path_str: str) -> Path:
+def ensure_expanded(path_str):
+    """Expand ~ and environment variables and return a string path."""
+    return os.path.expanduser(os.path.expandvars(path_str))
+
+
+def remove_files_with_prefix(base_dir, prefix):
     """
-    Expand ~ and environment variables and return a Path object.
-
-    This allows us to write paths in a portable way, e.g.:
-      "~/Library/..." or "%LOCALAPPDATA%\\..."
+    Walk a directory tree and remove files whose names start with prefix.
     """
-    expanded = os.path.expanduser(os.path.expandvars(path_str))
-    return Path(expanded)
+    for root, dirs, files in os.walk(base_dir):
+        for name in files:
+            if name.startswith(prefix):
+                remove_path(os.path.join(root, name))
 
 
 # ------------------------------------------------------------
 # Chrome favicon cleanup
 # ------------------------------------------------------------
 
-def clear_chrome_favicons_mac() -> None:
+def clear_chrome_favicons_mac():
     """
     Clear Chrome favicon databases on macOS.
-
-    Chrome's user data lives under:
-        ~/Library/Application Support/Google/Chrome
-
-    Each profile (Default, Profile 1, etc.) is a subfolder.
-    Each profile may contain:
-        Favicons
-        Favicons-journal
-
-    Strategy:
-      - Walk all subdirectories under Chrome user data.
-      - For each file named 'Favicons' or starting with 'Favicons-',
-        remove it.
     """
     base_dir = ensure_expanded("~/Library/Application Support/Google/Chrome")
-    if not base_dir.exists():
+    if not os.path.exists(base_dir):
         log("  Chrome base directory not found (macOS) – skipping.")
         return
 
-    log(f"  scanning Chrome profiles under: {base_dir}")
-    # Walk the tree and delete 'Favicons*' files.
-    for path in base_dir.rglob("Favicons*"):
-        # We only want regular files (not directories)
-        if path.is_file():
-            remove_path(path)
+    log("  scanning Chrome profiles under: {0}".format(base_dir))
+    remove_files_with_prefix(base_dir, "Favicons")
 
 
-def clear_chrome_favicons_windows() -> None:
+def clear_chrome_favicons_windows():
     """
     Clear Chrome favicon databases on Windows.
-
-    Chrome's user data lives under:
-        %LOCALAPPDATA%\Google\Chrome\User Data
-
-    Strategy:
-      - Walk all subdirectories under User Data.
-      - Delete any files named 'Favicons' or starting with 'Favicons-'.
     """
     base_dir = ensure_expanded(r"%LOCALAPPDATA%\Google\Chrome\User Data")
-    if not base_dir.exists():
+    if not os.path.exists(base_dir):
         log("  Chrome base directory not found (Windows) – skipping.")
         return
 
-    log(f"  scanning Chrome profiles under: {base_dir}")
-    for path in base_dir.rglob("Favicons*"):
-        if path.is_file():
-            remove_path(path)
+    log("  scanning Chrome profiles under: {0}".format(base_dir))
+    remove_files_with_prefix(base_dir, "Favicons")
 
 
-def clear_chrome_favicons() -> None:
+def clear_chrome_favicons():
     """Dispatch Chrome cleanup based on OS."""
     system = platform.system()
     log("Chrome:")
@@ -140,64 +109,54 @@ def clear_chrome_favicons() -> None:
         clear_chrome_favicons_windows()
     else:
         log("  non-macOS/non-Windows system – skipping Chrome.")
-    log("")  # blank line for readability
+    log("")
 
 
 # ------------------------------------------------------------
 # Firefox favicon cleanup
 # ------------------------------------------------------------
 
-def clear_firefox_favicons_mac() -> None:
+def clear_firefox_favicons_mac():
     """
     Clear Firefox favicon databases on macOS.
-
-    Firefox profiles are under:
-        ~/Library/Application Support/Firefox/Profiles/<profile-name>
-
-    Favicons are stored in:
-        favicons.sqlite
-        favicons.sqlite-wal
-        favicons.sqlite-shm
     """
     profiles_dir = ensure_expanded("~/Library/Application Support/Firefox/Profiles")
-    if not profiles_dir.exists():
+    if not os.path.exists(profiles_dir):
         log("  Firefox profiles directory not found (macOS) – skipping.")
         return
 
-    log(f"  scanning Firefox profiles under: {profiles_dir}")
-    for profile in profiles_dir.iterdir():
-        if not profile.is_dir():
+    log("  scanning Firefox profiles under: {0}".format(profiles_dir))
+    patterns = ("favicons.sqlite", "favicons.sqlite-wal", "favicons.sqlite-shm")
+    for profile in os.listdir(profiles_dir):
+        subdir = os.path.join(profiles_dir, profile)
+        if not os.path.isdir(subdir):
             continue
-        # Pattern-match the favicon-related sqlite files.
-        for pattern in ("favicons.sqlite", "favicons.sqlite-wal", "favicons.sqlite-shm"):
-            candidate = profile / pattern
+        for pattern in patterns:
+            candidate = os.path.join(subdir, pattern)
             remove_path(candidate)
 
 
-def clear_firefox_favicons_windows() -> None:
+def clear_firefox_favicons_windows():
     """
     Clear Firefox favicon databases on Windows.
-
-    Firefox profiles are under:
-        %APPDATA%\Mozilla\Firefox\Profiles\<profile-name>
-
-    Same file names as on macOS.
     """
     profiles_dir = ensure_expanded(r"%APPDATA%\Mozilla\Firefox\Profiles")
-    if not profiles_dir.exists():
+    if not os.path.exists(profiles_dir):
         log("  Firefox profiles directory not found (Windows) – skipping.")
         return
 
-    log(f"  scanning Firefox profiles under: {profiles_dir}")
-    for profile in profiles_dir.iterdir():
-        if not profile.is_dir():
+    log("  scanning Firefox profiles under: {0}".format(profiles_dir))
+    patterns = ("favicons.sqlite", "favicons.sqlite-wal", "favicons.sqlite-shm")
+    for profile in os.listdir(profiles_dir):
+        subdir = os.path.join(profiles_dir, profile)
+        if not os.path.isdir(subdir):
             continue
-        for pattern in ("favicons.sqlite", "favicons.sqlite-wal", "favicons.sqlite-shm"):
-            candidate = profile / pattern
+        for pattern in patterns:
+            candidate = os.path.join(subdir, pattern)
             remove_path(candidate)
 
 
-def clear_firefox_favicons() -> None:
+def clear_firefox_favicons():
     """Dispatch Firefox cleanup based on OS."""
     system = platform.system()
     log("Firefox:")
@@ -214,25 +173,20 @@ def clear_firefox_favicons() -> None:
 # Safari favicon cleanup (macOS only)
 # ------------------------------------------------------------
 
-def clear_safari_favicons_mac() -> None:
+def clear_safari_favicons_mac():
     """
     Clear Safari favicon cache on macOS.
-
-    Safari keeps favicons in:
-        ~/Library/Safari/Favicon Cache
-
-    We remove the whole directory; Safari will recreate it.
     """
     cache_dir = ensure_expanded("~/Library/Safari/Favicon Cache")
     log("Safari:")
-    if not cache_dir.exists():
+    if not os.path.exists(cache_dir):
         log("  Safari favicon cache directory not found – skipping.")
     else:
         remove_path(cache_dir)
     log("")
 
 
-def clear_safari_favicons() -> None:
+def clear_safari_favicons():
     """Dispatch Safari cleanup only on macOS."""
     system = platform.system()
     if system == "Darwin":
@@ -246,11 +200,33 @@ def clear_safari_favicons() -> None:
 # Main entry point
 # ------------------------------------------------------------
 
-def main() -> None:
+def wait_for_enter():
+    """Wait for ENTER on Windows double-click; safe on other OSes too."""
+    try:
+        prompt = "\nPress ENTER to close this window... "
+        if sys.version_info[0] < 3:
+            raw_input(prompt)  # noqa: F821  # type: ignore
+        else:
+            input(prompt)
+    except Exception:
+        pass
+
+
+def ensure_min_python():
+    """Require Python 2.7+."""
+    if sys.version_info < MIN_VERSION:
+        log("This script requires Python {0}.{1} or newer.".format(MIN_VERSION[0], MIN_VERSION[1]))
+        wait_for_enter()
+        sys.exit(1)
+
+
+def main():
     """Main launcher: detect OS and clear favicon caches."""
+    ensure_min_python()
+
     system = platform.system()
     log("==============================================")
-    log(f" Favicon cache cleaner  |  OS detected: {system}")
+    log(" Favicon cache cleaner  |  OS detected: {0}".format(system))
     log("==============================================")
     log("")
 
@@ -265,7 +241,7 @@ def main() -> None:
     # On Windows, if run via double-click, keep the window open
     # so you can read the output.
     if os.name == "nt":
-        input("\nPress ENTER to close this window... ")
+        wait_for_enter()
 
 
 if __name__ == "__main__":

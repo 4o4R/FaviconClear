@@ -13,11 +13,13 @@ This tool provides a **single, cross-platform launcher** (macOS + Windows) that 
 ## Windows: Step‑by‑Step Instructions
 
 ### 1. Install Python (if not already installed)
+Python 3 is recommended, but the tool works on Python 2.7+.
+
 1. Press **Start** → type **python**.  
    If Python appears, skip to step 2.
 2. If not:
    - Visit: https://www.python.org/downloads/windows/
-   - Download **Python 3**
+   - Download **Python (latest 3.x)**
    - IMPORTANT: check **“Add Python to PATH”**
    - Finish install.
 
@@ -37,9 +39,7 @@ Double‑click:
 run_cleaner.bat
 ```
 
-It calls Python 3 automatically (`py -3`, then `python3`, then `python` if it’s Python 3), runs the cleaner, shows results, and waits for ENTER so you can read the output.
-
-If you see a `SyntaxError` near `def log(msg: str)`, you’re on an old Python. Install Python 3 and try again.
+It tries available Python interpreters automatically (`py -3`, `py -2`, `py`, `python3`, `python`), runs the cleaner, shows results, and waits for ENTER so you can read the output.
 
 ### Optional: Desktop Shortcut
 Right‑click `run_cleaner.bat` → **Send to Desktop**.
@@ -52,10 +52,10 @@ Right‑click `run_cleaner.bat` → **Send to Desktop**.
 Open **Terminal** and run:
 
 ```bash
-python3 --version
+python --version  # or: python3 --version
 ```
 
-If Python 3 appears, continue.  
+If a version prints (2.7+ or 3.x), continue.  
 If not: install via Homebrew:
 
 ```bash
@@ -85,7 +85,7 @@ chmod +x ~/FaviconCleaner/run_cleaner.command
 ### Optional: Run from Terminal
 ```bash
 cd ~/FaviconCleaner
-python3 clear_favicon_cache.py
+python clear_favicon_cache.py   # or: python3 clear_favicon_cache.py
 ```
 
 ---
