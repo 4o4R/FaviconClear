@@ -31,6 +31,7 @@ C:\FaviconCleaner\
 ```
 
 Move `clear_favicon_cache.py` **and** `run_cleaner.bat` into that folder.
+Be sure to **extract the entire zip first**—keep the .py and .bat in the same folder.
 
 ### 3. Run It (Double‑Click)
 Double‑click:
