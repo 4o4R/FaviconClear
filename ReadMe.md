@@ -13,14 +13,12 @@ This tool provides a **single, cross-platform launcher** (macOS + Windows) that 
 ## Windows: Step‑by‑Step Instructions
 
 ### 1. Install Python (if not already installed)
-Python 3 is recommended, but the tool works on Python 2.7+.
-
 1. Press **Start** → type **python**.  
    If Python appears, skip to step 2.
 2. If not:
    - Visit: https://www.python.org/downloads/windows/
-   - Download **Python (latest 3.x)**
-   - IMPORTANT: check **“Add Python to PATH”**
+   - Download **Python 3** (Python 2.7 also works if you already have it)
+   - IMPORTANT: check the box **“Add Python to PATH”**
    - Finish install.
 
 ### 2. Put the Files in an Easy Folder
@@ -31,7 +29,6 @@ C:\FaviconCleaner\
 ```
 
 Move `clear_favicon_cache.py` **and** `run_cleaner.bat` into that folder.
-Be sure to **extract the entire zip first**—keep the .py and .bat in the same folder.
 
 ### 3. Run It (Double‑Click)
 Double‑click:
@@ -40,7 +37,7 @@ Double‑click:
 run_cleaner.bat
 ```
 
-It tries available Python interpreters automatically (`py -3`, `py -2`, `py`, `python3`, `python`), runs the cleaner, shows results, and waits for ENTER so you can read the output.
+It tries available Python interpreters automatically (`python`, `python3`, then `py`), runs the cleaner, shows results, and waits for ENTER so you can read the output.
 
 ### Optional: Desktop Shortcut
 Right‑click `run_cleaner.bat` → **Send to Desktop**.
@@ -53,10 +50,10 @@ Right‑click `run_cleaner.bat` → **Send to Desktop**.
 Open **Terminal** and run:
 
 ```bash
-python --version  # or: python3 --version
+python3 --version  # or: python --version
 ```
 
-If a version prints (2.7+ or 3.x), continue.  
+If Python appears, continue.  
 If not: install via Homebrew:
 
 ```bash
@@ -88,6 +85,61 @@ chmod +x ~/FaviconCleaner/run_cleaner.command
 cd ~/FaviconCleaner
 python clear_favicon_cache.py   # or: python3 clear_favicon_cache.py
 ```
+
+---
+
+# Automate It (Optional)
+
+## Windows: Task Scheduler
+Run at logon (good for “after reboot / after browser close”):
+1. Open **Task Scheduler** → **Create Basic Task…**
+2. Name: “Clear Favicon Cache”
+3. Trigger: **When I log on**
+4. Action: **Start a program**
+   - Program/script: `C:\Windows\System32\cmd.exe`
+   - Add arguments: `/c "C:\FaviconCleaner\run_cleaner.bat"`
+5. Finish.
+
+Weekly schedule instead:
+1. Trigger: **Weekly**
+2. Pick day/time → same Action as above.
+
+Note: task runs hidden; check results by running `run_cleaner.bat` manually if needed.
+
+## macOS: launchd (runs at login or weekly)
+1. Create the plist:
+   ```bash
+   cat > ~/Library/LaunchAgents/com.user.faviconcleaner.plist <<'EOF'
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+   <dict>
+     <key>Label</key><string>com.user.faviconcleaner</string>
+     <key>ProgramArguments</key>
+     <array>
+       <string>/usr/bin/env</string>
+       <string>python</string>
+       <string>/Users/$USER/FaviconCleaner/clear_favicon_cache.py</string>
+     </array>
+     <key>StandardOutPath</key><string>/tmp/faviconcleaner.log</string>
+     <key>StandardErrorPath</key><string>/tmp/faviconcleaner.log</string>
+     <key>RunAtLoad</key><true/>
+     <!-- Weekly: uncomment StartCalendarInterval and remove RunAtLoad if desired -->
+     <!-- <key>StartCalendarInterval</key><dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>9</integer><key>Minute</key><integer>0</integer></dict> -->
+   </dict>
+   </plist>
+   EOF
+   ```
+2. Load it:
+   ```bash
+   launchctl load ~/Library/LaunchAgents/com.user.faviconcleaner.plist
+   ```
+3. To unload:
+   ```bash
+   launchctl unload ~/Library/LaunchAgents/com.user.faviconcleaner.plist
+   ```
+
+For a manual weekly run, use `StartCalendarInterval` (example above: Monday 09:00) and remove `RunAtLoad`.
 
 ---
 
