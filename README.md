@@ -6,124 +6,152 @@ This tool provides a **single, cross-platform launcher** (macOS + Windows) that 
 - **Inspired by:** https://news.ycombinator.com/item?id=45947770  
 - **Countermeasure to:** https://github.com/jonasstrehle/supercookie
 
-The favicon-based “supercookie” exploit stores a unique ID inside your browser's cached favicon database. Because browsers rarely delete these files—and often recreate them automatically—sites can identify users across sessions, private-mode windows, and even after typical cache clears.
-
-This script reliably removes those underlying database files for **Chrome**, **Firefox**, and **Safari (macOS)**, across all profiles it can discover, forcing browsers to regenerate clean caches.
-
 ---
 
-## Features
+# Quick Start for Windows and macOS Users
 
-- **Cross-platform**: Works on macOS and Windows.
-- **Multi-browser**: Chrome, Firefox, Safari (macOS only).
-- **Profile-aware**: Detects and cleans all available profiles.
-- **Safe**: Only removes favicon database files or Safari's favicon cache directory; browsers rebuild them automatically.
-- **Portable**: Single `python` file, no external dependencies.
-- **Transparent**: Detailed logging of each deleted file/path.
+## Windows: Step‑by‑Step Instructions
 
----
+### 1. Install Python (if not already installed)
+1. Press **Start** → type **python**.  
+   If Python appears, skip to step 2.
+2. If not:
+   - Visit: https://www.python.org/downloads/windows/
+   - Download **Python 3**
+   - IMPORTANT: check the box **“Add Python to PATH”**
+   - Finish install.
 
-## Why This Exists
+### 2. Put the Script in an Easy Folder
+Create a folder:
 
-Websites can store a persistent identifier inside your browser’s **favicon cache**. This “supercookie” technique works because:
-
-- Browsers store icons in SQLite databases (Chrome/Firefox) or directories (Safari).
-- These favicon caches often survive:
-  - Normal cache clears  
-  - Private browsing sessions  
-  - Incognito tabs  
-  - Even some full history deletions  
-- The data is not isolated by site and is rarely purged.
-
-By periodically deleting these favicon databases, you eliminate the data required for this persistence layer, reducing the ability of a site to re-identify you.
-
----
-
-## Supported Browsers
-
-### macOS
-- Google Chrome (all profiles)
-- Mozilla Firefox (all profiles)
-- Safari (removes entire `Favicon Cache` directory)
-
-### Windows
-- Google Chrome (all profiles)
-- Mozilla Firefox (all profiles)
-
----
-
-## Usage
-
-### Requirements
-- Python 3.8+  
-- Permissions to read/write your browser profile directories
-
-### Running
-```bash
-python clear_favicon_cache.py
+```
+C:\FaviconCleaner\
 ```
 
-### Double-click / one-click operation
-- **Windows**: Create a `.bat` file or shortcut pointing to Python.
-- **macOS**: Wrap with an Automator “Application” to integrate with Launchpad.
+Move `clear_favicon_cache.py` into that folder.
+
+### 3. Create a One‑Click Launcher
+1. Open **Notepad**
+2. Paste:
+
+```bat
+@echo off
+python "%~dp0clear_favicon_cache.py"
+pause
+```
+
+3. Save as:
+
+```
+C:\FaviconCleaner\run_cleaner.bat
+```
+(Make sure “Save as type” is **All Files**, not .txt.)
+
+### 4. Run It
+Double‑click:
+
+```
+run_cleaner.bat
+```
+
+A window will open, run the cleaner, display results, and wait for ENTER.
+
+### Optional: Create Desktop Shortcut
+Right‑click `run_cleaner.bat` → **Send to Desktop**.
 
 ---
 
-## How It Works
+## macOS: Step‑by‑Step Instructions
 
-The script looks for known favicon storage locations and deletes only:
+### 1. Check Python
+Open **Terminal** and run:
+
+```bash
+python3 --version
+```
+
+If Python 3 appears, continue.  
+If not: install via Homebrew:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install python
+```
+
+Or download from python.org.
+
+### 2. Create Folder for the Script
+```bash
+mkdir -p ~/FaviconCleaner
+```
+
+Move `clear_favicon_cache.py` into it.
+
+### 3. Run the Script
+```bash
+cd ~/FaviconCleaner
+python3 clear_favicon_cache.py
+```
+
+### Optional: Create a Clickable macOS App
+1. Open **Automator**
+2. Choose **Application**
+3. Add **Run Shell Script**
+4. Paste:
+
+```bash
+/usr/bin/env python3 "$HOME/FaviconCleaner/clear_favicon_cache.py"
+```
+
+5. Save as:
+
+```
+Favicon Cleaner.app
+```
+
+Place it in Applications or Desktop.
+
+---
+
+# How It Works
+
+The script removes favicon storage locations used by browsers:
 
 ### Chrome
 - `Favicons`
 - `Favicons-journal`
-- Any `Favicons*` files under profile directories
+- All `Favicons*` in Chrome profile folders
 
 ### Firefox
 - `favicons.sqlite`
-- `favicons.sqlite-shm`
 - `favicons.sqlite-wal`
+- `favicons.sqlite-shm`
 
 ### Safari (macOS)
 - Entire `~/Library/Safari/Favicon Cache` directory
 
-All browsers re-create these structures automatically upon next launch.
+Browsers automatically recreate these files with clean data.
 
 ---
 
-## Code
+# Download the Script
 
-See [`clear_favicon_cache.py`](./clear_favicon_cache.py) for the full script.  
-It includes extensive inline documentation explaining every line and decision.
+You can download the full script here:
 
----
+**[Download clear_favicon_cache.py](sandbox:/mnt/data/clear_favicon_cache.py)**
 
-## Security Notes
-
-- This script does **not** interfere with bookmarks, history, or cookies.  
-- It only removes favicon cache files that can regenerate without data loss.  
-- It does **not** attempt to modify browser configurations or privacy settings.
-
-For maximum protection, consider running this script:
-
-- At system startup  
-- Daily or weekly via cron / Task Scheduler  
-- Before and after sensitive browsing  
+(If you need it zipped, I can generate that too.)
 
 ---
 
-## Roadmap
+# Security Notes
 
-- Optional “dry run” mode  
-- Linux support  
-- Auto-packaging into:
-  - macOS app bundle  
-  - Windows executable  
-- Optional system service for periodic cleanup  
-- Browser-specific hardening recommendations  
+- Does not modify cookies, bookmarks, or history
+- Only deletes cache files that browsers safely rebuild
+- Safeguards against “favicon supercookie” tracking vectors
 
 ---
 
-## License
+# License
 
-MIT License.  
-Contributions are welcome.
+MIT License — free for personal and commercial use.
